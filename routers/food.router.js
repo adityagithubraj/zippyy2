@@ -216,6 +216,30 @@ foodRouter.get('/allfood', async (req, res) => {
   }
 });
 
+//.............search food...........
+
+foodRouter.get('/searchfoodbysuggestions', async (req, res) => {
+  const { name } = req.query;
+
+  try {
+      let foods;
+
+      // Check if name query parameter is provided
+      if (name) {
+          // Perform case-insensitive search by name
+          foods = await Food.find({ name: { $regex: new RegExp(name, 'i') } });
+      } else {
+          // If name parameter is not provided, return all foods
+          foods = await Food.find();
+      }
+
+      res.json(foods);
+  } catch (error) {
+      res.status(500).json({ error: error.message });
+  }
+});
+
+
 
 //............Add to cart food.....................//
 
