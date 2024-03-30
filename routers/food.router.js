@@ -299,7 +299,7 @@ foodRouter.post('/add-to-cart', authenticate, async (req, res) => {
       const existingCartItemIndex = user.cart.findIndex(cartItem => cartItem.foodId && cartItem.foodId.toString() === foodId);
       if (existingCartItemIndex > -1) {
         // If found, update the quantity
-        user.cart[existingCartItemIndex].quantity += quantity;
+        user.cart[existingCartItemIndex].quantity = quantity;
       } else {
         // If not found, add a new item to the cart
         user.cart.push({ foodId, quantity });
