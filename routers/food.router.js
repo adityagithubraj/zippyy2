@@ -383,10 +383,10 @@ foodRouter.delete('/delete-cart', authenticate, async (req, res) => {
 foodRouter.post('/fetch-cart-food', authenticate, async (req, res) => {
   try {
     // Extract cart data from the request body
-    const cartData = req.body;
+    const itemsToAdd = req.body;
 
     // Extract foodIds from cart data
-    const foodIds = cartData.map(item => item.foodId);
+    const foodIds = itemsToAdd.map(item => item.foodId);
 
     // Query the database for the food items based on the foodIds
     const cartFoodData = await Food.find({ _id: { $in: foodIds } });
