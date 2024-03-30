@@ -1,5 +1,12 @@
 const mongoose = require("mongoose");
 
+const cartItemSchema = new mongoose.Schema({
+    foodId: { type: mongoose.Schema.Types.ObjectId, ref: 'Food', required: true },
+    quantity: { type: Number, required: true, min: 1 }
+  }, { _id: false });
+
+
+
 const userSchema = new mongoose.Schema({
 
     name: {
@@ -34,6 +41,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: false,
         default: "https://png.pngtree.com/png-vector/20220817/ourmid/pngtree-cartoon-man-avatar-vector-ilustration-png-image_6111064.png"
+    },
+    cart: {
+        type: [cartItemSchema],
+        default: []
     },
     
     lat: { type: Number },

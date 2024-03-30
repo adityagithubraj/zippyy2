@@ -216,7 +216,7 @@ foodRouter.get('/allfood', async (req, res) => {
   }
 });
 
-//.............search food...........
+//.............search food...........//
 
 foodRouter.get('/searchfoodbysuggestions', async (req, res) => {
   const { name } = req.query;
@@ -247,26 +247,30 @@ foodRouter.get('/searchfoodbysuggestions', async (req, res) => {
 foodRouter.post('/add-to-cart', authenticate, async (req, res) => {
   const { foodId, quantity } = req.body;
   const userId = req.user._id; // Set by `authenticate` middleware
- 
 
   try {
-   
-    let cart = await Cart.findOne({ userId });
-    if (!cart) {
-      cart = new Cart({ userId, items: [{ foodId, quantity }] });
-    } else {
-      const itemIndex = cart.items.findIndex(item => item.foodId.toString() === foodId);
-      if (itemIndex > -1) {
-        cart.items[itemIndex].quantity += quantity;
-      } else {
-        cart.items.push({ foodId, quantity });
+      // Find the user by ID and update the cart
+      const user = await User.findById(userId);
+      if (!user) {
+          return res.json({ error: "User not found." });
       }
-    }
 
-    await cart.save();
-    res.json(cart);
+      // Find if the food is already in the cart
+      const existingCartItemIndex = user.cart.findIndex(item => item.foodId.toString() === foodId);
+      if (existingCartItemIndex > -1) {
+          // If found, update the quantity
+          user.cart[existingCartItemIndex].quantity += quantity;
+      } else {
+          // If not found, add a new item to the cart
+          user.cart.push({ foodId, quantity });
+      }
+
+      // Save the updated user with the cart
+      await user.save();
+
+      res.json(user.cart);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error.message });
   }
 });
 
