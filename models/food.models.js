@@ -50,6 +50,6 @@ const foodSchema = new Schema({
 
 const Food = mongoose.model('FOOD', foodSchema);
 
-module.exports = { Food }
+module.exports = Food
 
 

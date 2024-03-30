@@ -1,6 +1,6 @@
 const express = require('express');
 const foodRouter = express.Router();
-const { Food } = require('../models/food.models');
+const Food = require('../models/food.models')
 const { authenticate } = require("../middleware/auth")
 const { authorize } = require("../middleware/authorize")
 const { User } = require("../models/user.model")
@@ -315,6 +315,30 @@ foodRouter.post('/add-to-cart', authenticate, async (req, res) => {
   }
 });
 
+//..........cart data deleted  route .............//
+foodRouter.delete('/delete-cart', authenticate, async (req, res) => {
+  const userId = req.user._id; // Set by `authenticate` middleware
+
+  try {
+    // Find the user by ID
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.json({ error: "User not found." });
+    }
+
+    // Clear the user's cart
+    user.cart = [];
+
+    // Save the updated user with the empty cart
+    await user.save();
+
+    res.json({ message: "Cart data deleted successfully." });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
 
 
 
@@ -374,53 +398,106 @@ const calculateTotalPrice = (items) => {
 
 
 //.............order route -2..............//
+// foodRouter.post('/place-order', authenticate, async (req, res) => {
+//   const userId = req.user._id; // Assuming `authenticate` middleware correctly sets `req.user`
+//   const { paymentMethod, deliveryAddress } = req.body;
+
+//   try {
+//       // Find the user by ID and populate the cart
+//       const user = await User.findById(userId).populate('cart.foodId');
+//       if (!user || !user.cart || user.cart.length === 0) {
+//           return res.status(400).json({ error: "Your cart is empty." });
+//       }
+
+//       // Fetch current prices for items
+//       const itemsWithPrices = user.cart.map(item => {
+//           const foodItem = item.foodId;
+//           if (!foodItem) {
+//               throw new Error(`Food item not found: ${item.foodId}`);
+//           }
+//           return {
+//               foodId: item.foodId._id,
+//               quantity: item.quantity,
+//               price: foodItem.price // Assuming `price` is a field on the Food model
+//           };
+//       });
+
+//       // Calculate total price based on itemsWithPrices
+//       const totalPrice = calculateTotalPrice(itemsWithPrices);
+
+//       const order = new Order({
+//           customerID: userId,
+//           items: itemsWithPrices,
+//           totalPrice,
+//           paymentMethod,
+//           orderStatus: 'pending',
+//           deliveryAddress
+//       });
+
+//       await order.save();
+//       // Clear the user's cart after placing the order
+//       user.cart = [];
+//       await user.save();
+
+//       res.status(201).json({ order });
+//   } catch (error) {
+//       console.error(error); // Logging the error can help with debugging
+//       res.status(500).json({ error: error.message });
+//   }
+// });
+
+
+
+
 foodRouter.post('/place-order', authenticate, async (req, res) => {
   const userId = req.user._id; // Assuming `authenticate` middleware correctly sets `req.user`
   const { paymentMethod, deliveryAddress } = req.body;
 
   try {
-      // Find the user by ID and populate the cart
-      const user = await User.findById(userId).populate('cart.foodId');
-      if (!user || !user.cart || user.cart.length === 0) {
-          return res.status(400).json({ error: "Your cart is empty." });
+    // Find the user by ID and populate the cart
+    const user = await User.findById(userId).populate('cart.foodId');
+    if (!user || !user.cart || user.cart.length === 0) {
+      return res.status(400).json({ error: "Your cart is empty." });
+    }
+
+    // Fetch current prices for items
+    const itemsWithPrices = user.cart.map(item => {
+      const foodItem = item.foodId;
+      if (!foodItem) {
+        throw new Error(`Food item not found: ${item.foodId}`);
       }
+      return {
+        foodId: item.foodId._id,
+        quantity: item.quantity,
+        price: foodItem.price // Assuming `price` is a field on the Food model
+      };
+    });
 
-      // Fetch current prices for items
-      const itemsWithPrices = user.cart.map(item => {
-          const foodItem = item.foodId;
-          if (!foodItem) {
-              throw new Error(`Food item not found: ${item.foodId}`);
-          }
-          return {
-              foodId: item.foodId._id,
-              quantity: item.quantity,
-              price: foodItem.price // Assuming `price` is a field on the Food model
-          };
-      });
+    // Calculate total price based on itemsWithPrices
+    const totalPrice = calculateTotalPrice(itemsWithPrices);
 
-      // Calculate total price based on itemsWithPrices
-      const totalPrice = calculateTotalPrice(itemsWithPrices);
+    const order = new Order({
+      customerID: userId,
+      items: itemsWithPrices,
+      totalPrice,
+      paymentMethod,
+      orderStatus: 'pending',
+      deliveryAddress
+    });
 
-      const order = new Order({
-          customerID: userId,
-          items: itemsWithPrices,
-          totalPrice,
-          paymentMethod,
-          orderStatus: 'pending',
-          deliveryAddress
-      });
+    await order.save();
+    // Clear the user's cart after placing the order
+    user.cart = [];
+    await user.save();
 
-      await order.save();
-      // Clear the user's cart after placing the order
-      user.cart = [];
-      await user.save();
-
-      res.status(201).json({ order });
+    res.status(201).json({ order });
   } catch (error) {
-      console.error(error); // Logging the error can help with debugging
-      res.status(500).json({ error: error.message });
+    console.error(error); // Logging the error can help with debugging
+    res.status(500).json({ error: error.message });
   }
 });
+
+
 
 
 

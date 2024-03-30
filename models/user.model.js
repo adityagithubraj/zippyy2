@@ -1,19 +1,15 @@
 const mongoose = require("mongoose");
 
 const cartItemSchema = new mongoose.Schema({
-    foodId: { type: mongoose.Schema.Types.ObjectId, ref: 'Food', required: true },
-    quantity: { type: Number, required: true, min: 1 }
-  }, { _id: false });
-
-
+  foodId: { type: mongoose.Schema.Types.ObjectId, ref: 'Food', required: true },
+  quantity: { type: Number, required: true, min: 1 }
+}, { _id: false });
 
 const userSchema = new mongoose.Schema({
-
     name: {
         type: String,
         require: true
     },
-
     email: {
         type: String,
         require: true
@@ -35,24 +31,21 @@ const userSchema = new mongoose.Schema({
         required: true,
         default: "customer",
         enum: ['user', 'admin', 'deliveryPartner']
-        
     },
     profilePic: {
         type: String,
         required: false,
         default: "https://png.pngtree.com/png-vector/20220817/ourmid/pngtree-cartoon-man-avatar-vector-ilustration-png-image_6111064.png"
     },
+    lat: { type: Number },
+    lon: { type: Number },
+    // Adding cart field
     cart: {
         type: [cartItemSchema],
         default: []
-    },
-    
-    lat: { type: Number },
-    lon: { type: Number }
+    }
+}, { timestamps: true });
 
-}, { timestamps: true })
+const User = mongoose.model("User", userSchema);
 
-const User = mongoose.model("USER", userSchema)
-
-module.exports = { User }
-
+module.exports = { User };
