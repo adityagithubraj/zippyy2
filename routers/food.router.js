@@ -275,6 +275,49 @@ foodRouter.get('/searchfoodbysuggestions', async (req, res) => {
 
 
 //.........modify add to card route .................//
+// foodRouter.post('/add-to-cart', authenticate, async (req, res) => {
+//   const itemsToAdd = req.body; // Array of objects containing { foodId, quantity }
+//   const userId = req.user._id; // Set by `authenticate` middleware
+
+//   try {
+//     // Find the user by ID
+//     const user = await User.findById(userId);
+//     if (!user) {
+//       return res.json({ error: "User not found." });
+//     }
+
+//     // Loop through each item to add to the cart
+//     itemsToAdd.forEach(item => {
+//       const { foodId, quantity } = item;
+
+//       // Ensure foodId is defined and not empty
+//       if (!foodId || typeof foodId !== 'string') {
+//         return res.status(400).json({ error: "Invalid foodId provided." });
+//       }
+
+//       // Find if the food is already in the cart
+//       const existingCartItemIndex = user.cart.findIndex(cartItem => cartItem.foodId && cartItem.foodId.toString() === foodId);
+//       if (existingCartItemIndex > -1) {
+//         // If found, update the quantity
+//         user.cart[existingCartItemIndex].quantity = quantity;
+//       } else {
+//         // If not found, add a new item to the cart
+//         user.cart.push({ foodId, quantity });
+//       }
+//     });
+
+//     // Save the updated user with the cart
+//     await user.save();
+
+//     res.json(user.cart);
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// });
+
+
+
+//................llll........//
 foodRouter.post('/add-to-cart', authenticate, async (req, res) => {
   const itemsToAdd = req.body; // Array of objects containing { foodId, quantity }
   const userId = req.user._id; // Set by `authenticate` middleware
@@ -286,27 +329,22 @@ foodRouter.post('/add-to-cart', authenticate, async (req, res) => {
       return res.json({ error: "User not found." });
     }
 
-    // Loop through each item to add to the cart
+    // If any existing cart data, delete the entire cart
+    if (user.cart.length > 0) {
+      user.cart = [];
+    }
+
+    // Add new items to the cart
     itemsToAdd.forEach(item => {
       const { foodId, quantity } = item;
-
       // Ensure foodId is defined and not empty
       if (!foodId || typeof foodId !== 'string') {
         return res.status(400).json({ error: "Invalid foodId provided." });
       }
-
-      // Find if the food is already in the cart
-      const existingCartItemIndex = user.cart.findIndex(cartItem => cartItem.foodId && cartItem.foodId.toString() === foodId);
-      if (existingCartItemIndex > -1) {
-        // If found, update the quantity
-        user.cart[existingCartItemIndex].quantity = quantity;
-      } else {
-        // If not found, add a new item to the cart
-        user.cart.push({ foodId, quantity });
-      }
+      user.cart.push({ foodId, quantity });
     });
 
-    // Save the updated user with the cart
+    // Save the updated user with the new cart data
     await user.save();
 
     res.json(user.cart);
@@ -314,6 +352,9 @@ foodRouter.post('/add-to-cart', authenticate, async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+
+
 
 //..........cart data deleted  route .............//
 foodRouter.delete('/delete-cart', authenticate, async (req, res) => {
@@ -338,7 +379,34 @@ foodRouter.delete('/delete-cart', authenticate, async (req, res) => {
   }
 });
 
+//.............get cart data ............//
+foodRouter.post('/fetch-cart-food', authenticate, async (req, res) => {
+  try {
+    // Extract cart data from the request body
+    const cartData = req.body;
 
+    // Extract foodIds from cart data
+    const foodIds = cartData.map(item => item.foodId);
+
+    // Query the database for the food items based on the foodIds
+    const cartFoodData = await Food.find({ _id: { $in: foodIds } });
+
+    // Map the cart data with fetched food data
+    const formattedCartData = cartFoodData.map(foodItem => ({
+      _id: foodItem._id,
+      name: foodItem.name,
+      description: foodItem.description,
+      price: foodItem.price,
+      foodType: foodItem.foodType,
+      category: foodItem.category,
+      imageUrl: foodItem.imageUrl,
+    }));
+
+    res.json({ cartFoodData: formattedCartData });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 
 
