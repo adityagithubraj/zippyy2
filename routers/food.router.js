@@ -890,6 +890,29 @@ foodRouter.get('/getorders', authenticate, async (req, res) => {
   }
 });
 
+
+//grt those order login token .......//
+foodRouter.get('/usergetorders', authenticate, async (req, res) => {
+  try {
+    // Get the ID of the currently logged-in user
+    const userId = req.user._id;
+
+    // Fetch orders placed by the current user from the database
+    const orders = await Order.find({ customerID: userId });
+
+    // If no orders are found for the user, return a message
+    if (!orders || orders.length === 0) {
+      return res.status(404).json({ message: "No orders found for this user." });
+    }
+
+    // If orders are found, return them
+    res.json(orders);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
 //.......search by id ........//
 foodRouter.get('/getordersbyid', authenticate, async (req, res) => {
   try {
