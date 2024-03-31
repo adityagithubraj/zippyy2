@@ -707,11 +707,93 @@ const calculateTotalPrice = (items) => {
 // });
 
 //...........new order route .........//
+// foodRouter.post('/create-order', authenticate, async (req, res) => {
+//   try {
+//     const {
+//       Cartitems,
+     
+//       deliveryBoyId,
+//       deliveryBoyName,
+//       deliveryBoyPhone,
+//       deliveryAddress,
+//       deliveryLat,
+//       deliveryLong,
+//       deliveryInstructions,
+//       cookingInstructions,
+//       deliveryCharge,
+//       totalPayablePrice,
+//       status,
+//       payment,
+//       distance,
+//       expectedDeliveryDuration,
+//       restaurantPhoneNumber,
+//       restaurantLat,
+//       restaurantLong,
+//       price,
+//       tax,
+//       PlatformFee
+//     } = req.body;
+
+//     // Find the user by ID
+//     const user = await User.findById(req.user._id);
+//     if (!user) {
+//       return res.status(404).json({ error: "User not found." });
+//     }
+
+//     // Check if the cart is empty
+//     if (!Cartitems || Cartitems.length === 0) {
+//       return res.status(400).json({ error: "Cart items are required." });
+//     }
+
+//     // Create a new order
+//     const order = new Order({
+//       customerID: user._id,
+//       items: Cartitems.map(item => ({
+//         foodId: item.foodId,
+//         quantity: item.quantity,
+//         price: item.price,
+//         name: item.name,
+//         imageUrl: item.imageUrl
+//       })),
+      
+//       deliveryBoyId,
+//       deliveryBoyName,
+//       deliveryBoyPhone,
+//       deliveryAddress,
+//       deliveryLat,
+//       deliveryLong,
+//       restaurantLat,
+//       restaurantLong,
+//       restaurantPhoneNumber,
+//       distance,
+//       price,
+//       tax,
+//       PlatformFee,
+//       deliveryInstructions,
+//       cookingInstructions,
+//       deliveryCharge,
+//       totalPayablePrice,
+//       status,
+//       payment,
+//       expectedDeliveryDuration,
+//       orderTime: new Date()
+//     });
+
+//     // Save the order
+//     await order.save();
+
+//     res.status(201).json({ message: "Order created successfully.", order });
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// });
+
+
+//............new..............//
 foodRouter.post('/create-order', authenticate, async (req, res) => {
   try {
     const {
       Cartitems,
-     
       deliveryBoyId,
       deliveryBoyName,
       deliveryBoyPhone,
@@ -749,13 +831,12 @@ foodRouter.post('/create-order', authenticate, async (req, res) => {
     const order = new Order({
       customerID: user._id,
       items: Cartitems.map(item => ({
-        id: item.id,
+        foodId: item.foodId, // Change from foodId to id
         quantity: item.quantity,
         price: item.price,
         name: item.name,
         imageUrl: item.imageUrl
       })),
-      
       deliveryBoyId,
       deliveryBoyName,
       deliveryBoyPhone,
@@ -787,6 +868,7 @@ foodRouter.post('/create-order', authenticate, async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
 
 //.......get order ........//
 foodRouter.get('/getorders', authenticate, async (req, res) => {

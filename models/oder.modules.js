@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const orderItemSchema = new Schema({
-  id: { type: Schema.Types.ObjectId, ref: 'Food', required: true },
+  foodId: { type: Schema.Types.ObjectId, ref: 'Food', required: true },
   quantity: { type: Number, required: true, min: 1 },
   price: { type: Number, required: true },
   name: { type: String, required: true },
@@ -14,13 +14,11 @@ const orderSchema = new Schema({
   customerID: {
     type: Schema.Types.ObjectId,
     ref: 'User',
-    
+    required: true
   },
   items: [orderItemSchema],
-  
   status: {
     type: String,
-    
     enum: ['pending', 'accepted', 'on the way', 'delivered', 'cancelled'],
     default: 'pending'
   },
@@ -36,87 +34,67 @@ const orderSchema = new Schema({
     type: String,
     default: 'NA'
   },
-  
   deliveryAddress: {
     type: String,
-    
     default: 'NA'
   },
   deliveryLat: {
     type: Number,
-    
-    default: 'NA'
+    default: NaN
   },
   deliveryLong: {
     type: Number,
-    
-    default: 'NA'
+    default: NaN
   },
   restaurantLat: {
     type: Number,
-    default: 'NA'
+    default: NaN
   },
   restaurantLong: {
     type: Number,
-        default: 'NA'
-,
-    default: 'NA'
+    default: NaN
   },
   restaurantPhoneNumber: {
     type: String,
-        default: 'NA'
-
+    default: 'NA'
   },
   distance: {
     type: Number,
-        default: 'NA'
-
+    default: NaN
   },
   price: {
     type: Number,
-        default: 'NA'
-
+    default: NaN
   },
   tax: {
     type: Number,
-        default: 'NA'
-
+    default: NaN
   },
   PlatformFee: {
     type: Number,
-        default: 'NA'
-
+    default: NaN
   },
-  deliveryInstructions: {
-    type: String
-  },
-  cookingInstructions: {
-    type: String
-  },
+  deliveryInstructions: String,
+  cookingInstructions: String,
   deliveryCharge: {
     type: Number,
-        default: 'NA'
-
+    default: NaN
   },
   totalPayablePrice: {
     type: Number,
-        default: 'NA'
-
+    default: NaN
   },
-  
   payment: {
     type: Boolean,
-        default: 'NA'
-
+    default: false
   },
-  expectedDeliveryDuration: {
-    type: Number
-  },
+  expectedDeliveryDuration: Number,
   orderTime: {
     type: Date,
     default: Date.now
   }
 }, { timestamps: true });
+
 
 const Order = mongoose.model('Order', orderSchema);
 
