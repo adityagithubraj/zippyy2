@@ -633,20 +633,105 @@ const calculateTotalPrice = (items) => {
 
 // ..................Route to create an order.............//
 
+// foodRouter.post('/create-order', authenticate, async (req, res) => {
+//   try {
+//     const {
+//       Cartitems,
+//       deliveryTime,
+//       deliveryBoyId,
+//       deliveryBoyName,
+//       deliveryBoyPhone,
+//       deliveryAddress,
+//       deliveryLat,
+//       deliveryLon,
+//       deliveryInstructions,
+//       cookingInstructions,
+//       deliveryCharge
+//     } = req.body;
+
+//     // Find the user by ID
+//     const user = await User.findById(req.user._id);
+//     if (!user) {
+//       return res.status(404).json({ error: "User not found." });
+//     }
+
+//     // Check if the cart is empty
+//     if (!Cartitems || Cartitems.length === 0) {
+//       return res.status(400).json({ error: "Cart items are required." });
+//     }
+
+//     // Calculate the total price
+//     let totalPrice = 0;
+//     for (const item of Cartitems) {
+//       const foodItem = await Food.findById(item.foodId);
+//       if (!foodItem) {
+//         return res.status(400).json({ error: "Food item not found." });
+//       }
+//       totalPrice += foodItem.price * item.quantity;
+//     }
+
+//     // Create a new order
+//     const order = new Order({
+//       customerID: user._id,
+//       items: Cartitems.map(item => ({
+//         foodId: item.foodId,
+//         quantity: item.quantity,
+//         name: item.name,
+//         price: item.price,
+//         imageUrl: item.imageUrl
+//         //price: 0 // This will be populated later
+//       })),
+//       totalPrice,
+//       orderTime: new Date(),
+//       deliveryTime,
+//       deliveryBoyId,
+//       deliveryBoyName,
+//       deliveryBoyPhone,
+//       deliveryAddress,
+//       deliveryLat,
+//       deliveryLon,
+//       deliveryInstructions,
+//       cookingInstructions,
+//       deliveryCharge,
+//       status: 'pending',
+//       payment: false // Payment not yet made
+//     });
+
+//     // Save the order
+//     await order.save();
+
+//     res.status(201).json({ message: "Order created successfully.", order });
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// });
+
+//...........new order route .........//
 foodRouter.post('/create-order', authenticate, async (req, res) => {
   try {
     const {
       Cartitems,
-      deliveryTime,
+     
       deliveryBoyId,
       deliveryBoyName,
       deliveryBoyPhone,
       deliveryAddress,
       deliveryLat,
-      deliveryLon,
+      deliveryLong,
       deliveryInstructions,
       cookingInstructions,
-      deliveryCharge
+      deliveryCharge,
+      totalPayablePrice,
+      status,
+      payment,
+      distance,
+      expectedDeliveryDuration,
+      restaurantPhoneNumber,
+      restaurantLat,
+      restaurantLong,
+      price,
+      tax,
+      PlatformFee
     } = req.body;
 
     // Find the user by ID
@@ -656,18 +741,8 @@ foodRouter.post('/create-order', authenticate, async (req, res) => {
     }
 
     // Check if the cart is empty
-    if (!Cartitems || !Array.isArray(Cartitems) || Cartitems.length === 0) {
+    if (!Cartitems || Cartitems.length === 0) {
       return res.status(400).json({ error: "Cart items are required." });
-    }
-
-    // Calculate the total price
-    let totalPrice = 0;
-    for (const item of Cartitems) {
-      const foodItem = await Food.findById(item.foodId);
-      if (!foodItem) {
-        return res.status(400).json({ error: "Food item not found." });
-      }
-      totalPrice += foodItem.price * item.quantity;
     }
 
     // Create a new order
@@ -676,22 +751,32 @@ foodRouter.post('/create-order', authenticate, async (req, res) => {
       items: Cartitems.map(item => ({
         foodId: item.foodId,
         quantity: item.quantity,
-        price: 0 // This will be populated later
+        price: item.price,
+        name: item.name,
+        imageUrl: item.imageUrl
       })),
-      totalPrice,
-      orderTime: new Date(),
-      deliveryTime,
+      
       deliveryBoyId,
       deliveryBoyName,
       deliveryBoyPhone,
       deliveryAddress,
       deliveryLat,
-      deliveryLon,
+      deliveryLong,
+      restaurantLat,
+      restaurantLong,
+      restaurantPhoneNumber,
+      distance,
+      price,
+      tax,
+      PlatformFee,
       deliveryInstructions,
       cookingInstructions,
       deliveryCharge,
-      status: 'pending',
-      payment: false // Payment not yet made
+      totalPayablePrice,
+      status,
+      payment,
+      expectedDeliveryDuration,
+      orderTime: new Date()
     });
 
     // Save the order

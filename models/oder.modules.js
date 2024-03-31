@@ -4,7 +4,10 @@ const Schema = mongoose.Schema;
 const orderItemSchema = new Schema({
   foodId: { type: Schema.Types.ObjectId, ref: 'Food', required: true },
   quantity: { type: Number, required: true, min: 1 },
-  price: { type: Number, required: true }
+  price: { type: Number, required: true },
+  name: { type: String, required: true },
+  imageUrl: { type: String, required: true }
+
 }, { _id: false });
 
 const orderSchema = new Schema({
@@ -14,49 +17,65 @@ const orderSchema = new Schema({
     required: true
   },
   items: [orderItemSchema],
-  totalPrice: {
-    type: Number,
-    required: true
-  },
-  orderTime: {
-    type: Date,
-    default: Date.now
-  },
-  deliveryTime: {
-    type: Date
+  
+  status: {
+    type: String,
+    required: true,
+    enum: ['pending', 'accepted', 'on the way', 'delivered', 'cancelled'],
+    default: 'pending'
   },
   deliveryBoyId: {
-    type: Schema.Types.ObjectId,
-    ref: 'User',
-    default:"NA"
+    type: String,
+    default: 'NA'
   },
   deliveryBoyName: {
     type: String,
-    default:"NA"
+    default: 'NA'
   },
   deliveryBoyPhone: {
     type: String,
-    default:"NA"
+    default: 'NA'
   },
-  restaurantPhone: {
-    type: String,
-    default:"6295750824"
-  },
+  
   deliveryAddress: {
     type: String,
     required: true
   },
   deliveryLat: {
-    type: Number
+    type: Number,
+    required: true
   },
-  deliveryLon: {
-    type: Number
+  deliveryLong: {
+    type: Number,
+    required: true
   },
-  deliveryBoyLat: {
-    type: Number
+  restaurantLat: {
+    type: Number,
+    required: true
   },
-  deliveryBoyLon: {
-    type: Number
+  restaurantLong: {
+    type: Number,
+    required: true
+  },
+  restaurantPhoneNumber: {
+    type: String,
+    required: true
+  },
+  distance: {
+    type: Number,
+    required: true
+  },
+  price: {
+    type: Number,
+    required: true
+  },
+  tax: {
+    type: Number,
+    required: true
+  },
+  PlatformFee: {
+    type: Number,
+    required: true
   },
   deliveryInstructions: {
     type: String
@@ -64,18 +83,25 @@ const orderSchema = new Schema({
   cookingInstructions: {
     type: String
   },
-  status: {
-    type: String,
-    required: true,
-    enum: ['pending', 'accepted', 'on the way', 'delivered', 'cancelled'],
-    default: 'pending'
+  deliveryCharge: {
+    type: Number,
+    required: true
   },
+  totalPayablePrice: {
+    type: Number,
+    required: true
+  },
+  
   payment: {
     type: Boolean,
     required: true
   },
-  deliveryCharge: {
+  expectedDeliveryDuration: {
     type: Number
+  },
+  orderTime: {
+    type: Date,
+    default: Date.now
   }
 }, { timestamps: true });
 
