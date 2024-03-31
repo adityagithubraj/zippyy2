@@ -47,6 +47,10 @@ const orderSchema = new Schema({
     type: String,
     default: 'NA'
   },
+  deliveryTime: {
+    type: String,
+    default: 'NA'
+  },
   deliveryLat: {
     type:String,
     default: "0"
@@ -97,7 +101,12 @@ const orderSchema = new Schema({
     type: Boolean,
     default: false
   },
-  expectedDeliveryDuration: Number,
+  expectedDeliveryDuration:{ 
+    type: Number,
+  default: 00
+
+  },
+
   orderTime: {
     type: Date,
     default: Date.now
