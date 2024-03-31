@@ -34,17 +34,26 @@ const orderSchema = new Schema({
     type: String,
     default: 'NA'
   },
+  deliveryBoyLat: {
+    type:String,
+    default: "0"
+  },
+  deliveryBoyLong: {
+    type: String,
+    default: "0"
+  },
+
   deliveryAddress: {
     type: String,
     default: 'NA'
   },
   deliveryLat: {
     type:String,
-    default: "NA"
+    default: "0"
   },
   deliveryLong: {
     type: String,
-    default: "NA"
+    default: "0"
   },
   restaurantLat: {
     type: String,
