@@ -15,14 +15,16 @@ const {Restaurant} = require('../models/resturent.model');
 foodRouter.post('/createrestaurant', authenticate, async (req, res) => {
  
 
-  const { name, address, phoneNumber, isOpen } = req.body;
+  const { name, address, phoneNumber, isOpen ,lat , lon} = req.body;
 
   try {
     const newRestaurant = new Restaurant({
       name,
       address,
       phoneNumber,
-      isOpen // Adding isOpen field
+      isOpen, // Adding isOpen field,
+      lat,
+      lon
     });
 
     await newRestaurant.save();
@@ -35,7 +37,7 @@ foodRouter.post('/createrestaurant', authenticate, async (req, res) => {
 
 //.............route for handel isopen o r not ...........//
 foodRouter.patch('/restaurantstatus', async (req, res) => {
-  const restaurantId = '6602695b11b3c61fb23b6a80'; // Hardcoded restaurant ID, replace with actual ID if needed
+  const restaurantId = '660958a4caba6a34ab447138'; // Hardcoded restaurant ID, replace with actual ID if needed
 
   try {
       // Find the restaurant by ID
@@ -73,7 +75,7 @@ foodRouter.get('/restaurants', async (req, res) => {
 // ........Route to edit restaurant data...............//
 
 foodRouter.patch('/editrestaurant', async (req, res) => {
-  const restaurantId = '6602695b11b3c61fb23b6a80'; // Hardcoded restaurant ID, replace with actual ID if needed
+  const restaurantId = '660958a4caba6a34ab447138'; // Hardcoded restaurant ID, replace with actual ID if needed
 
   try {
       // Find the restaurant by ID
@@ -85,10 +87,12 @@ foodRouter.patch('/editrestaurant', async (req, res) => {
       }
 
       // Update restaurant data with the new values from the request body
-      const { name, address, phoneNumber } = req.body;
+      const { name, address, phoneNumber ,lat , lon} = req.body;
       restaurant.name = name;
       restaurant.address = address;
       restaurant.phoneNumber = phoneNumber;
+      restaurant.lat = lat;
+      restaurant.lon = lon;
    
 
       // Save the changes to the database
@@ -390,6 +394,7 @@ foodRouter.post('/fetch-cart-food', authenticate, async (req, res) => {
 
     // Query the database for the food items based on the foodIds
     const cartFoodData = await Food.find({ _id: { $in: foodIds } });
+    const restaurants = await Restaurant.find();
 
     // Map the cart data with fetched food data
     const formattedCartData = cartFoodData.map(foodItem => ({
@@ -402,7 +407,7 @@ foodRouter.post('/fetch-cart-food', authenticate, async (req, res) => {
       imageUrl: foodItem.imageUrl,
     }));
 
-    res.json({ cartFoodData: formattedCartData });
+    res.json({ cartFoodData: formattedCartData, restaurants:restaurants });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -568,59 +573,133 @@ const calculateTotalPrice = (items) => {
 
 
 //................order route..............//
+// foodRouter.post('/create-order', authenticate, async (req, res) => {
+//   try {
+//     const { address, paymentMethod } = req.body;
+//     const userId = req.user._id;
+
+//     // Find the user by ID
+//     const user = await User.findById(userId);
+//     if (!user) {
+//       return res.json({ error: "User not found." });
+//     }
+
+//     // Fetch all cart items for the current user
+//     const cartItems = user.cart;
+
+//     // Check if the cart is empty
+//     if (cartItems.length === 0) {
+//       return res.json({ error: "Cart is empty." });
+//     }
+
+//     // Calculate the total price
+//     let totalPrice = 0;
+//     for (const item of cartItems) {
+//       const foodItem = await Food.findById(item.foodId);
+//       if (!foodItem) {
+//         return res.json({ error: "Food item not found." });
+//       }
+//       totalPrice += foodItem.price * item.quantity;
+//     }
+
+//     // Create a new order
+//     const order = new Order({
+//       customerID: userId,
+//       items: cartItems.map(item => ({
+//         foodId: item.foodId,
+//         quantity: item.quantity,
+//         //price: 0 // This will be populated later
+//       })),
+//       totalPrice,
+//       orderStatus: 'pending',
+//       paymentMethod,
+//       deliveryAddress: address
+//     });
+
+//     // Save the order
+//     await order.save();
+
+//     // Empty the user's cart after the order is successfully created
+//     user.cart = [];
+//     await user.save();
+
+//     res.json({ msg: "Order created successfully.", order });
+//   } catch (error) {
+//     res.json({ error: error.message });
+//   }
+// });
+
+
+
+// ..................Route to create an order.............//
+
 foodRouter.post('/create-order', authenticate, async (req, res) => {
   try {
-    const { address, paymentMethod } = req.body;
-    const userId = req.user._id;
+    const {
+      Cartitems,
+      deliveryTime,
+      deliveryBoyId,
+      deliveryBoyName,
+      deliveryBoyPhone,
+      deliveryAddress,
+      deliveryLat,
+      deliveryLon,
+      deliveryInstructions,
+      cookingInstructions,
+      deliveryCharge
+    } = req.body;
 
     // Find the user by ID
-    const user = await User.findById(userId);
+    const user = await User.findById(req.user._id);
     if (!user) {
-      return res.json({ error: "User not found." });
+      return res.status(404).json({ error: "User not found." });
     }
 
-    // Fetch all cart items for the current user
-    const cartItems = user.cart;
-
     // Check if the cart is empty
-    if (cartItems.length === 0) {
-      return res.json({ error: "Cart is empty." });
+    if (!Cartitems || !Array.isArray(Cartitems) || Cartitems.length === 0) {
+      return res.status(400).json({ error: "Cart items are required." });
     }
 
     // Calculate the total price
     let totalPrice = 0;
-    for (const item of cartItems) {
+    for (const item of Cartitems) {
       const foodItem = await Food.findById(item.foodId);
       if (!foodItem) {
-        return res.json({ error: "Food item not found." });
+        return res.status(400).json({ error: "Food item not found." });
       }
       totalPrice += foodItem.price * item.quantity;
     }
 
     // Create a new order
     const order = new Order({
-      customerID: userId,
-      items: cartItems.map(item => ({
+      customerID: user._id,
+      items: Cartitems.map(item => ({
         foodId: item.foodId,
         quantity: item.quantity,
-        //price: 0 // This will be populated later
+        price: 0 // This will be populated later
       })),
       totalPrice,
-      orderStatus: 'pending',
-      paymentMethod,
-      deliveryAddress: address
+      orderTime: new Date(),
+      deliveryTime,
+      deliveryBoyId,
+      deliveryBoyName,
+      deliveryBoyPhone,
+      deliveryAddress,
+      deliveryLat,
+      deliveryLon,
+      deliveryInstructions,
+      cookingInstructions,
+      deliveryCharge,
+      status: 'pending',
+      payment: false // Payment not yet made
     });
 
     // Save the order
     await order.save();
 
-    // Empty the user's cart after the order is successfully created
-    user.cart = [];
-    await user.save();
-
-    res.json({ msg: "Order created successfully.", order });
+    res.status(201).json({ message: "Order created successfully.", order });
   } catch (error) {
-    res.json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 });
 

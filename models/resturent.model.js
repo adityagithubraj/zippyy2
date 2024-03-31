@@ -17,10 +17,18 @@ const restaurantSchema = new mongoose.Schema({
   isOpen: {
     type: Boolean,
     default: false // Default value is false, assuming restaurant is initially closed
+  },
+  lat: {
+    type: Number,
+    default:11111
+  },
+  lon: {
+    type: Number,
+    default:000
   }
 });
 
 // Create restaurant model
 const Restaurant = mongoose.model('Restaurant', restaurantSchema);
 
-module.exports = {Restaurant};
+module.exports = { Restaurant };

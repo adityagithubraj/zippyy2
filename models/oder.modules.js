@@ -18,34 +18,67 @@ const orderSchema = new Schema({
     type: Number,
     required: true
   },
-  orderStatus: {
-    type: String,
-    required: true,
-    enum: ['pending', 'accepted', 'on the way', 'delivered', 'cancelled'],
-    default: 'pending'
+  orderTime: {
+    type: Date,
+    default: Date.now
   },
-  paymentMethod: {
-    type: String,
-    required: true,
-    enum: ['cashOnDelivery', 'card']
+  deliveryTime: {
+    type: Date
   },
-  assignedDeliveryPartnerID: {
+  deliveryBoyId: {
     type: Schema.Types.ObjectId,
-    ref: 'User'
+    ref: 'User',
+    default:"NA"
+  },
+  deliveryBoyName: {
+    type: String,
+    default:"NA"
+  },
+  deliveryBoyPhone: {
+    type: String,
+    default:"NA"
+  },
+  restaurantPhone: {
+    type: String,
+    default:"6295750824"
   },
   deliveryAddress: {
     type: String,
     required: true
   },
-  placedAt: {
-    type: Date,
-    default: Date.now
+  deliveryLat: {
+    type: Number
   },
-  deliveredAt: {
-    type: Date
+  deliveryLon: {
+    type: Number
+  },
+  deliveryBoyLat: {
+    type: Number
+  },
+  deliveryBoyLon: {
+    type: Number
+  },
+  deliveryInstructions: {
+    type: String
+  },
+  cookingInstructions: {
+    type: String
+  },
+  status: {
+    type: String,
+    required: true,
+    enum: ['pending', 'accepted', 'on the way', 'delivered', 'cancelled'],
+    default: 'pending'
+  },
+  payment: {
+    type: Boolean,
+    required: true
+  },
+  deliveryCharge: {
+    type: Number
   }
 }, { timestamps: true });
 
-const Order = mongoose.model('ORDER', orderSchema);
+const Order = mongoose.model('Order', orderSchema);
 
-module.exports = {Order}
+module.exports = {Order};
