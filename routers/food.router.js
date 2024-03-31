@@ -517,55 +517,112 @@ const calculateTotalPrice = (items) => {
 
 
 
-foodRouter.post('/place-order', authenticate, async (req, res) => {
-  const userId = req.user._id; // Assuming `authenticate` middleware correctly sets `req.user`
-  const { paymentMethod, deliveryAddress } = req.body;
+// foodRouter.post('/place-order', authenticate, async (req, res) => {
+//   const userId = req.user._id; // Assuming `authenticate` middleware correctly sets `req.user`
+//   const { paymentMethod, deliveryAddress } = req.body;
 
+//   try {
+//     // Find the user by ID and populate the cart
+//     const user = await User.findById(userId).populate('cart.foodId');
+//     if (!user || !user.cart || user.cart.length === 0) {
+//       return res.status(400).json({ error: "Your cart is empty." });
+//     }
+
+//     // Fetch current prices for items
+//     const itemsWithPrices = user.cart.map(item => {
+//       const foodItem = item.foodId;
+//       if (!foodItem) {
+//         throw new Error(`Food item not found: ${item.foodId}`);
+//       }
+//       return {
+//         foodId: item.foodId._id,
+//         quantity: item.quantity,
+//         price: foodItem.price // Assuming `price` is a field on the Food model
+//       };
+//     });
+
+//     // Calculate total price based on itemsWithPrices
+//     const totalPrice = calculateTotalPrice(itemsWithPrices);
+
+//     const order = new Order({
+//       customerID: userId,
+//       items: itemsWithPrices,
+//       totalPrice,
+//       paymentMethod,
+//       orderStatus: 'pending',
+//       deliveryAddress
+//     });
+
+//     await order.save();
+//     // Clear the user's cart after placing the order
+//     user.cart = [];
+//     await user.save();
+
+//     res.status(201).json({ order });
+//   } catch (error) {
+//     console.error(error); // Logging the error can help with debugging
+//     res.status(500).json({ error: error.message });
+//   }
+// });
+
+
+
+//................order route..............//
+foodRouter.post('/create-order', authenticate, async (req, res) => {
   try {
-    // Find the user by ID and populate the cart
-    const user = await User.findById(userId).populate('cart.foodId');
-    if (!user || !user.cart || user.cart.length === 0) {
-      return res.status(400).json({ error: "Your cart is empty." });
+    const { address, paymentMethod } = req.body;
+    const userId = req.user._id;
+
+    // Find the user by ID
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.json({ error: "User not found." });
     }
 
-    // Fetch current prices for items
-    const itemsWithPrices = user.cart.map(item => {
-      const foodItem = item.foodId;
+    // Fetch all cart items for the current user
+    const cartItems = user.cart;
+
+    // Check if the cart is empty
+    if (cartItems.length === 0) {
+      return res.json({ error: "Cart is empty." });
+    }
+
+    // Calculate the total price
+    let totalPrice = 0;
+    for (const item of cartItems) {
+      const foodItem = await Food.findById(item.foodId);
       if (!foodItem) {
-        throw new Error(`Food item not found: ${item.foodId}`);
+        return res.json({ error: "Food item not found." });
       }
-      return {
-        foodId: item.foodId._id,
-        quantity: item.quantity,
-        price: foodItem.price // Assuming `price` is a field on the Food model
-      };
-    });
+      totalPrice += foodItem.price * item.quantity;
+    }
 
-    // Calculate total price based on itemsWithPrices
-    const totalPrice = calculateTotalPrice(itemsWithPrices);
-
+    // Create a new order
     const order = new Order({
       customerID: userId,
-      items: itemsWithPrices,
+      items: cartItems.map(item => ({
+        foodId: item.foodId,
+        quantity: item.quantity,
+        //price: 0 // This will be populated later
+      })),
       totalPrice,
-      paymentMethod,
       orderStatus: 'pending',
-      deliveryAddress
+      paymentMethod,
+      deliveryAddress: address
     });
 
+    // Save the order
     await order.save();
-    // Clear the user's cart after placing the order
+
+    // Empty the user's cart after the order is successfully created
     user.cart = [];
     await user.save();
 
-    res.status(201).json({ order });
+    res.json({ msg: "Order created successfully.", order });
   } catch (error) {
-    console.error(error); // Logging the error can help with debugging
-    res.status(500).json({ error: error.message });
+    res.json({ error: error.message });
   }
 });
-
-
 
 
 
