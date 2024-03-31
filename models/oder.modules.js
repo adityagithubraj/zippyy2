@@ -48,8 +48,8 @@ const orderSchema = new Schema({
     default: 'NA'
   },
   deliveryTime: {
-    type: String,
-    default: 'NA'
+    type: Date,
+    default: Date.now
   },
   deliveryLat: {
     type:String,
@@ -113,8 +113,15 @@ const orderSchema = new Schema({
   }
 }, { timestamps: true });
 
+// Define virtual property for deliveryTime
+orderSchema.virtual('deliveryTimeCalculated').get(function() {
+  const orderTime = this.orderTime.getTime(); // Get order time in milliseconds
+  const deliveryDurationMs = this.expectedDeliveryDuration * 60000; // Convert minutes to milliseconds
+  const deliveryTimeMs = orderTime + deliveryDurationMs; // Calculate delivery time in milliseconds
+  return new Date(deliveryTimeMs); // Convert delivery time back to Date object
+});
+
 
 const Order = mongoose.model('Order', orderSchema);
 
 module.exports = {Order};
-//
