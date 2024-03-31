@@ -39,20 +39,20 @@ const orderSchema = new Schema({
     default: 'NA'
   },
   deliveryLat: {
-    type: Number,
-    default: NaN
+    type:String,
+    default: "NA"
   },
   deliveryLong: {
-    type: Number,
-    default: NaN
+    type: String,
+    default: "NA"
   },
   restaurantLat: {
-    type: Number,
-    default: NaN
+    type: String,
+    default: "NA"
   },
   restaurantLong: {
-    type: Number,
-    default: NaN
+    type: String,
+    default: "NA"
   },
   restaurantPhoneNumber: {
     type: String,
@@ -60,29 +60,29 @@ const orderSchema = new Schema({
   },
   distance: {
     type: Number,
-    default: NaN
+    default: 00
   },
   price: {
     type: Number,
-    default: NaN
+    default: 00
   },
   tax: {
     type: Number,
-    default: NaN
+    default:00
   },
   PlatformFee: {
     type: Number,
-    default: NaN
+    default: 00
   },
   deliveryInstructions: String,
   cookingInstructions: String,
   deliveryCharge: {
     type: Number,
-    default: NaN
+    default: 00
   },
   totalPayablePrice: {
     type: Number,
-    default: NaN
+    default: 00
   },
   payment: {
     type: Boolean,
