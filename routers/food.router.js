@@ -888,6 +888,125 @@ foodRouter.get('/getorders', authenticate, async (req, res) => {
   }
 });
 
+//.......search by id ........//
+foodRouter.get('/getordersbyid', authenticate, async (req, res) => {
+  try {
+    // Check if an order ID is provided in the query parameters
+    const orderId = req.query.orderId;
+
+    if (orderId) {
+      // If an order ID is provided, search for the order by its ID
+      const order = await Order.findById(orderId);
+
+      // If the order is not found, return a 404 response
+      if (!order) {
+        return res.status(404).json({ message: "Order not found." });
+      }
+
+      // If the order is found, return it
+      return res.json(order);
+    }
+
+    // If no order ID is provided, fetch all orders from the database
+    const orders = await Order.find({});
+
+    // If no orders are found, return an empty array
+    if (!orders || orders.length === 0) {
+      return res.status(404).json({ message: "No orders found." });
+    }
+
+    // If orders are found, return them
+    res.json(orders);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+//............edit order ..........//
+foodRouter.put('/edit-order/:orderId', authenticate, async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+    const {
+      Cartitems,
+      deliveryBoyId,
+      deliveryBoyName,
+      deliveryBoyPhone,
+      deliveryAddress,
+      deliveryLat,
+      deliveryLong,
+      deliveryInstructions,
+      cookingInstructions,
+      deliveryCharge,
+      totalPayablePrice,
+      status,
+      payment,
+      distance,
+      expectedDeliveryDuration,
+      restaurantPhoneNumber,
+      restaurantLat,
+      restaurantLong,
+      price,
+      tax,
+      PlatformFee
+    } = req.body;
+
+    // Find the user by ID
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
+    }
+
+    // Check if the cart is empty
+    if (!Cartitems || Cartitems.length === 0) {
+      return res.status(400).json({ error: "Cart items are required." });
+    }
+
+    // Find the existing order
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).json({ error: "Order not found." });
+    }
+
+    // Update the order details
+    order.items = Cartitems.map(item => ({
+      foodId: item.foodId, // Change from foodId to id
+      quantity: item.quantity,
+      price: item.price,
+      name: item.name,
+      imageUrl: item.imageUrl
+    }));
+    order.deliveryBoyId = deliveryBoyId;
+    order.deliveryBoyName = deliveryBoyName;
+    order.deliveryBoyPhone = deliveryBoyPhone;
+    order.deliveryAddress = deliveryAddress;
+    order.deliveryLat = deliveryLat;
+    order.deliveryLong = deliveryLong;
+    order.restaurantLat = restaurantLat;
+    order.restaurantLong = restaurantLong;
+    order.restaurantPhoneNumber = restaurantPhoneNumber;
+    order.distance = distance;
+    order.price = price;
+    order.tax = tax;
+    order.PlatformFee = PlatformFee;
+    order.deliveryInstructions = deliveryInstructions;
+    order.cookingInstructions = cookingInstructions;
+    order.deliveryCharge = deliveryCharge;
+    order.totalPayablePrice = totalPayablePrice;
+    order.status = status;
+    order.payment = payment;
+    order.expectedDeliveryDuration = expectedDeliveryDuration;
+
+    // Save the updated order
+    await order.save();
+
+    res.status(200).json({ message: "Order updated successfully.", order });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+
 //................Accept or reject order route .................//
 foodRouter.post('/accept-reject/:orderId', authenticate, authorize('admin'), async (req, res) => {
   const { orderId } = req.params;

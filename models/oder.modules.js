@@ -59,7 +59,7 @@ const orderSchema = new Schema({
     default: 'NA'
   },
   distance: {
-    type: Number,
+    type:Number,
     default: 00
   },
   price: {
