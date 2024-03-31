@@ -8,6 +8,8 @@ const {Cart} = require("../models/cart.model")
 const { Order } = require('../models/oder.modules')
 
 const {Restaurant} = require('../models/resturent.model');
+const mongoose = require('mongoose');
+
 
 
 
@@ -923,78 +925,105 @@ foodRouter.get('/getordersbyid', authenticate, async (req, res) => {
 });
 
 //............edit order ..........//
+// foodRouter.put('/edit-order/:orderId', authenticate, async (req, res) => {
+//   try {
+//     const orderId = req.params.orderId;
+//     const {
+//       // Cartitems,
+//       deliveryBoyId,
+//       deliveryBoyName,
+//       deliveryBoyPhone,
+//       deliveryAddress,
+//       deliveryLat,
+//       deliveryLong,
+//       deliveryInstructions,
+//       cookingInstructions,
+//       deliveryCharge,
+//       totalPayablePrice,
+//       status,
+//       payment,
+//       distance,
+//       expectedDeliveryDuration,
+//       restaurantPhoneNumber,
+//       restaurantLat,
+//       restaurantLong,
+//       price,
+//       tax,
+//       PlatformFee
+//     } = req.body;
+
+//     // Find the user by ID
+//     const user = await User.findById(req.user._id);
+//     if (!user) {
+//       return res.status(404).json({ error: "User not found." });
+//     }
+
+   
+
+//     // Find the existing order
+//     const order = await Order.findById(orderId);
+//     if (!order) {
+//       return res.status(404).json({ error: "Order not found." });
+//     }
+
+//     // Update the order details
+//     // order.items = Cartitems.map(item => ({
+//     //   foodId: item.foodId, // Change from foodId to id
+//     //   quantity: item.quantity,
+//     //   price: item.price,
+//     //   name: item.name,
+//     //   imageUrl: item.imageUrl
+//     // }));
+//     order.deliveryBoyId = deliveryBoyId;
+//     order.deliveryBoyName = deliveryBoyName;
+//     order.deliveryBoyPhone = deliveryBoyPhone;
+//     order.deliveryAddress = deliveryAddress;
+//     order.deliveryLat = deliveryLat;
+//     order.deliveryLong = deliveryLong;
+//     order.restaurantLat = restaurantLat;
+//     order.restaurantLong = restaurantLong;
+//     order.restaurantPhoneNumber = restaurantPhoneNumber;
+//     order.distance = distance;
+//     order.price = price;
+//     order.tax = tax;
+//     order.PlatformFee = PlatformFee;
+//     order.deliveryInstructions = deliveryInstructions;
+//     order.cookingInstructions = cookingInstructions;
+//     order.deliveryCharge = deliveryCharge;
+//     order.totalPayablePrice = totalPayablePrice;
+//     order.status = status;
+//     order.payment = payment;
+//     order.expectedDeliveryDuration = expectedDeliveryDuration;
+
+//     // Save the updated order
+//     await order.save();
+
+//     res.status(200).json({ message: "Order updated successfully.", order });
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// });
+
+
+//......edit2..............//
 foodRouter.put('/edit-order/:orderId', authenticate, async (req, res) => {
   try {
     const orderId = req.params.orderId;
-    const {
-      Cartitems,
-      deliveryBoyId,
-      deliveryBoyName,
-      deliveryBoyPhone,
-      deliveryAddress,
-      deliveryLat,
-      deliveryLong,
-      deliveryInstructions,
-      cookingInstructions,
-      deliveryCharge,
-      totalPayablePrice,
-      status,
-      payment,
-      distance,
-      expectedDeliveryDuration,
-      restaurantPhoneNumber,
-      restaurantLat,
-      restaurantLong,
-      price,
-      tax,
-      PlatformFee
-    } = req.body;
+    const updates = req.body;
 
-    // Find the user by ID
-    const user = await User.findById(req.user._id);
-    if (!user) {
-      return res.status(404).json({ error: "User not found." });
+    // Check if the orderId is valid
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+      return res.status(400).json({ error: "Invalid orderId." });
     }
 
-    // Check if the cart is empty
-    if (!Cartitems || Cartitems.length === 0) {
-      return res.status(400).json({ error: "Cart items are required." });
-    }
-
-    // Find the existing order
+    // Find the order by ID
     const order = await Order.findById(orderId);
     if (!order) {
       return res.status(404).json({ error: "Order not found." });
     }
 
-    // Update the order details
-    order.items = Cartitems.map(item => ({
-      foodId: item.foodId, // Change from foodId to id
-      quantity: item.quantity,
-      price: item.price,
-      name: item.name,
-      imageUrl: item.imageUrl
-    }));
-    order.deliveryBoyId = deliveryBoyId;
-    order.deliveryBoyName = deliveryBoyName;
-    order.deliveryBoyPhone = deliveryBoyPhone;
-    order.deliveryAddress = deliveryAddress;
-    order.deliveryLat = deliveryLat;
-    order.deliveryLong = deliveryLong;
-    order.restaurantLat = restaurantLat;
-    order.restaurantLong = restaurantLong;
-    order.restaurantPhoneNumber = restaurantPhoneNumber;
-    order.distance = distance;
-    order.price = price;
-    order.tax = tax;
-    order.PlatformFee = PlatformFee;
-    order.deliveryInstructions = deliveryInstructions;
-    order.cookingInstructions = cookingInstructions;
-    order.deliveryCharge = deliveryCharge;
-    order.totalPayablePrice = totalPayablePrice;
-    order.status = status;
-    order.payment = payment;
-    order.expectedDeliveryDuration = expectedDeliveryDuration;
+    // Update the order with the provided fields
+    Object.assign(order, updates);
 
     // Save the updated order
     await order.save();
