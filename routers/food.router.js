@@ -749,7 +749,7 @@ foodRouter.post('/create-order', authenticate, async (req, res) => {
     const order = new Order({
       customerID: user._id,
       items: Cartitems.map(item => ({
-        foodId: item.foodId,
+        id: item.id,
         quantity: item.quantity,
         price: item.price,
         name: item.name,

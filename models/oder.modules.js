@@ -2,25 +2,25 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const orderItemSchema = new Schema({
-  foodId: { type: Schema.Types.ObjectId, ref: 'Food', required: true },
+  id: { type: Schema.Types.ObjectId, ref: 'Food', required: true },
   quantity: { type: Number, required: true, min: 1 },
   price: { type: Number, required: true },
   name: { type: String, required: true },
   imageUrl: { type: String, required: true }
 
-}, { _id: false });
+},{ _id: false });
 
 const orderSchema = new Schema({
   customerID: {
     type: Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    
   },
   items: [orderItemSchema],
   
   status: {
     type: String,
-    required: true,
+    
     enum: ['pending', 'accepted', 'on the way', 'delivered', 'cancelled'],
     default: 'pending'
   },
@@ -39,43 +39,53 @@ const orderSchema = new Schema({
   
   deliveryAddress: {
     type: String,
-    required: true
+    
+    default: 'NA'
   },
   deliveryLat: {
     type: Number,
-    required: true
+    
+    default: 'NA'
   },
   deliveryLong: {
     type: Number,
-    required: true
+    
+    default: 'NA'
   },
   restaurantLat: {
     type: Number,
-    required: true
+    default: 'NA'
   },
   restaurantLong: {
     type: Number,
-    required: true
+        default: 'NA'
+,
+    default: 'NA'
   },
   restaurantPhoneNumber: {
     type: String,
-    required: true
+        default: 'NA'
+
   },
   distance: {
     type: Number,
-    required: true
+        default: 'NA'
+
   },
   price: {
     type: Number,
-    required: true
+        default: 'NA'
+
   },
   tax: {
     type: Number,
-    required: true
+        default: 'NA'
+
   },
   PlatformFee: {
     type: Number,
-    required: true
+        default: 'NA'
+
   },
   deliveryInstructions: {
     type: String
@@ -85,16 +95,19 @@ const orderSchema = new Schema({
   },
   deliveryCharge: {
     type: Number,
-    required: true
+        default: 'NA'
+
   },
   totalPayablePrice: {
     type: Number,
-    required: true
+        default: 'NA'
+
   },
   
   payment: {
     type: Boolean,
-    required: true
+        default: 'NA'
+
   },
   expectedDeliveryDuration: {
     type: Number
