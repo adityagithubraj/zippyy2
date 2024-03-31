@@ -788,7 +788,23 @@ foodRouter.post('/create-order', authenticate, async (req, res) => {
   }
 });
 
+//.......get order ........//
+foodRouter.get('/getorders', authenticate, async (req, res) => {
+  try {
+    // Fetch all orders from the database
+    const orders = await Order.find({});
 
+    // If no orders are found, return an empty array
+    if (!orders || orders.length === 0) {
+      return res.status(404).json({ message: "No orders found." });
+    }
+
+    // If orders are found, return them
+    res.json(orders);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 //................Accept or reject order route .................//
 foodRouter.post('/accept-reject/:orderId', authenticate, authorize('admin'), async (req, res) => {
