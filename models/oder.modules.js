@@ -61,8 +61,8 @@ const orderSchema = new Schema({
   },
 
   customerContact: {
-    type: String,
-    default: "000000000"
+    type: String
+  
   },
 
   restaurantLat: {

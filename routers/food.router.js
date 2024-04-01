@@ -809,7 +809,6 @@ foodRouter.post('/create-order', authenticate, async (req, res) => {
       status,
       payment,
       distance,
-      customerContact,
       expectedDeliveryDuration,
       restaurantPhoneNumber,
       restaurantLat,
@@ -824,6 +823,8 @@ foodRouter.post('/create-order', authenticate, async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: "User not found." });
     }
+
+    const customerContact = user.number;
 
     // Check if the cart is empty
     if (!Cartitems || Cartitems.length === 0) {
