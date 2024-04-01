@@ -912,8 +912,30 @@ foodRouter.get('/usergetorders', authenticate, async (req, res) => {
   }
 });
 
+
+//get order for delevry partner .............//
+foodRouter.get('/dgetorders', authenticate, async (req, res) => {
+  try {
+    // Get the ID of the currently logged-in user
+    const deliveryboyId = req.user._id;
+
+    // Fetch orders placed by the current user from the database
+    const orders = await Order.find({ deliveryBoyId: deliveryboyId });
+
+    // If no orders are found for the user, return a message
+    if (!orders || orders.length === 0) {
+      return res.status(404).json({ message: "No orders found for this deliveryPartner." });
+    }
+
+    // If orders are found, return them
+    res.json(orders);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 //get all delivry partner .....//
-// Define the route in your Express router
+
 foodRouter.get('/delivery-partners', authenticate, async (req, res) => {
   try {
     // Query the database for all delivery partners
@@ -1078,55 +1100,55 @@ foodRouter.put('/edit-order/:orderId', authenticate, async (req, res) => {
 
 
 //................Accept or reject order route .................//
-foodRouter.post('/accept-reject/:orderId', authenticate, authorize('admin'), async (req, res) => {
-  const { orderId } = req.params;
-  const { action } = req.body; // 'accept' or 'reject'
+// foodRouter.post('/accept-reject/:orderId', authenticate, authorize('admin'), async (req, res) => {
+//   const { orderId } = req.params;
+//   const { action } = req.body; // 'accept' or 'reject'
 
-  try {
-      const order = await Order.findById(orderId);
-      if (!order) {
-          return res.status(404).json({ error: "Order not found." });
-      }
+//   try {
+//       const order = await Order.findById(orderId);
+//       if (!order) {
+//           return res.status(404).json({ error: "Order not found." });
+//       }
 
-      if (action === 'accept') {
-          order.orderStatus = 'accepted';
-      } else if (action === 'reject') {
-          order.orderStatus = 'cancelled';
-      } else {
-          return res.status(400).json({ error: "Invalid action." });
-      }
+//       if (action === 'accept') {
+//           order.orderStatus = 'accepted';
+//       } else if (action === 'reject') {
+//           order.orderStatus = 'cancelled';
+//       } else {
+//           return res.status(400).json({ error: "Invalid action." });
+//       }
 
-      await order.save();
-      res.json(order);
-  } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: error.message });
-  }
-});
+//       await order.save();
+//       res.json(order);
+//   } catch (error) {
+//       console.error(error);
+//       res.status(500).json({ error: error.message });
+//   }
+// });
 
 
 //............Asinge delivry partner .................//
 
-foodRouter.post('/assign-delivery-partner/:orderId', authenticate, authorize('admin'), async (req, res) => {
-  const { orderId } = req.params;
-  const { deliveryPartnerId } = req.body;
+// foodRouter.post('/assign-delivery-partner/:orderId', authenticate, authorize('admin'), async (req, res) => {
+//   const { orderId } = req.params;
+//   const { deliveryPartnerId } = req.body;
 
-  try {
-      const order = await Order.findById(orderId);
-      if (!order) {
-          return res.status(404).json({ error: "Order not found." });
-      }
+//   try {
+//       const order = await Order.findById(orderId);
+//       if (!order) {
+//           return res.status(404).json({ error: "Order not found." });
+//       }
 
-      order.assignedDeliveryPartnerID = deliveryPartnerId;
-      order.orderStatus = 'on the way'; // Optionally update the status here
+//       order.assignedDeliveryPartnerID = deliveryPartnerId;
+//       order.orderStatus = 'on the way'; // Optionally update the status here
 
-      await order.save();
-      res.json(order);
-  } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: error.message });
-  }
-});
+//       await order.save();
+//       res.json(order);
+//   } catch (error) {
+//       console.error(error);
+//       res.status(500).json({ error: error.message });
+//   }
+// });
 
 
 module.exports = { foodRouter };
