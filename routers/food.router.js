@@ -912,6 +912,24 @@ foodRouter.get('/usergetorders', authenticate, async (req, res) => {
   }
 });
 
+//get all delivry partner .....//
+// Define the route in your Express router
+foodRouter.get('/delivery-partners', authenticate, async (req, res) => {
+  try {
+    // Query the database for all delivery partners
+    const deliveryPartners = await User.find({ role: 'deliveryPartner' });
+
+    // If no delivery partners are found, return an empty array
+    if (!deliveryPartners || deliveryPartners.length === 0) {
+      return res.status(404).json({ message: "No delivery partners found." });
+    }
+
+    // If delivery partners are found, return them
+    res.json(deliveryPartners);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 //.......search by id ........//
 foodRouter.get('/getordersbyid', authenticate, async (req, res) => {
