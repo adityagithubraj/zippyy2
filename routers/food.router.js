@@ -467,26 +467,26 @@ foodRouter.post('/create-order', authenticate, async (req, res) => {
 
 
     // Custom ID generation logic
-    let orderId;
-    const allOrders = await Order.find();
-    if (allOrders.length > 0) {
-      const lastAddedOrder = allOrders[allOrders.length - 1];
-      const lastAddedOrderId = lastAddedOrder._id;
+    // let orderId;
+    // const allOrders = await Order.find();
+    // if (allOrders.length > 0) {
+    //   const lastAddedOrder = allOrders[allOrders.length - 1];
+    //   const lastAddedOrderId = lastAddedOrder._id;
 
-      // Increment the last order's orderId and pad with leading zeros
-      const lastOrderIdNumber = parseInt(lastAddedOrderId.substring(1), 10);
-      const newOrderIdNumber = lastOrderIdNumber + 1;
-      orderId = 'O' + String(newOrderIdNumber).padStart(lastAddedOrderId.length - 1, '0');
-    } else {
-      // If no orders found, set the orderId to the starting value
-      orderId = "0000000001";
-    }
+    //   // Increment the last order's orderId and pad with leading zeros
+    //   const lastOrderIdNumber = parseInt(lastAddedOrderId.substring(1), 10);
+    //   const newOrderIdNumber = lastOrderIdNumber + 1;
+    //   orderId = 'O' + String(newOrderIdNumber).padStart(lastAddedOrderId.length - 1, '0');
+    // } else {
+    //   // If no orders found, set the orderId to the starting value
+    //   orderId = "0000000001";
+    // }
 
 //end of custom id 
 
     // Create a new order
     const order = new Order({
-      _id: orderId,
+      //_id: orderId,
       customerID: user._id,
       items: Cartitems.map(item => ({
         foodId: item.foodId, // Change from foodId to id
