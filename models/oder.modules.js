@@ -11,6 +11,7 @@ const orderItemSchema = new Schema({
 },{ _id: false });
 
 const orderSchema = new Schema({
+  _id: { type: String, required: true }, 
   customerID: {
     type: Schema.Types.ObjectId,
     ref: 'User',
