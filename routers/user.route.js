@@ -47,7 +47,8 @@ userRouter.post("/signup", async (req, res) => {
     }
 
     try {
-        const existingUser = await User.findOne({ email: email });
+        const lowerCaseEmail = email.toLowerCase();
+        const existingUser = await User.findOne({ email: lowerCaseEmail });
 
         if (existingUser) {
             return res.json({ msg:"User already exists with the same email. Please sign in."});
@@ -61,7 +62,7 @@ userRouter.post("/signup", async (req, res) => {
         const user = new User({
             name,
             number,
-            email,
+            email:lowerCaseEmail,
             role,
             password: hashedPassword,
             address,
@@ -182,8 +183,9 @@ userRouter.post("/signin", async (req, res) => {
     }
 
     try {
+        const lowerCaseEmail = email.toLowerCase();
         // Step 3: Check if the email exists in the database
-        const existingUser = await User.findOne({ email });
+        const existingUser = await User.findOne({email: lowerCaseEmail });
 
         if (!existingUser) {
             return res.json({ msg: "Invalid email" });
