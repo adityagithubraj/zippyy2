@@ -11,11 +11,16 @@ const orderItemSchema = new Schema({
 },{ _id: false });
 
 const orderSchema = new Schema({
- // _id: { type: String, required: true }, 
+  
   customerID: {
     type: Schema.Types.ObjectId,
     ref: 'User',
     required: true
+  },
+  OrderId: {
+    type: String,
+    required: true,
+    default :"00000000001",
   },
   items: [orderItemSchema],
   status: {
